@@ -29,8 +29,14 @@ package dk.nsi.haiba.lprimporter.importer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -40,6 +46,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -47,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dk.nsi.haiba.lprimporter.dao.HAIBADAO;
 import dk.nsi.haiba.lprimporter.dao.LPRDAO;
+import dk.nsi.haiba.lprimporter.dao.impl.LPRDAOImpl;
 import dk.nsi.haiba.lprimporter.integrationtest.LPRIntegrationTestConfiguration;
 import dk.nsi.haiba.lprimporter.status.ImportStatusRepository;
 
@@ -54,11 +62,12 @@ import dk.nsi.haiba.lprimporter.status.ImportStatusRepository;
 @Transactional("haibaTransactionManager")
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class ImportExecutorTest {
+    private static final Logger aLog = Logger.getLogger(ImportExecutorTest.class);
 
     @Configuration
     @Import({ LPRIntegrationTestConfiguration.class })
     static class TestConfiguration {
-              @Bean(name = "minipasLPRDAO")
+        @Bean(name = "minipasLPRDAO")
         public LPRDAO minipasLPRDAO() {
             return Mockito.mock(LPRDAO.class);
         }
@@ -81,18 +90,90 @@ public class ImportExecutorTest {
 
     @Autowired
     @Qualifier("haibaJdbcTemplate")
-    JdbcTemplate jdbc;
+    JdbcTemplate haibaJdbc;
 
-    @Test
-    public void test3800() {
-        jdbc.update("insert into klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) values ('3800999', 'TST Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
-        String sygehusInitials = haibaDao.getSygehusInitials("3800", "999", new Date());
-        assertEquals("TST", sygehusInitials);
+    @Autowired
+    @Qualifier("lprJdbcTemplate")
+    JdbcTemplate lprJdbc;
+
+    @Before
+    public void init() {
+        Logger.getLogger(ImportExecutor.class).setLevel(Level.DEBUG);
+        Logger.getLogger(LPRDAOImpl.class).setLevel(Level.TRACE);
+        Logger.getLogger(ImportExecutorTest.class).setLevel(Level.TRACE);
+
+        lprJdbc.update("truncate table t_adm");
     }
 
     @Test
-    public void testExecutor() {
+    public void testNon3800() {
+        // simulate fgr importer
+        haibaJdbc
+                .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('1234999', 'PAP Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
+        haibaJdbc
+                .update("INSERT INTO klass_shak (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('1234', 'test', 'Ejerforhold2','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
+        // then carecom
+        lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '1234', '999', '1', '1111111111', '2013-01-10', '2013-01-14')");
+        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 0);
+
         executor.doProcess(true);
-        assertTrue(true);
+
+        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 1);
+        String ejerforhold = haibaJdbc.queryForObject(
+                "select Ejerforhold from anvendt_klass_shak where sygehuskode='1234' AND afdelingskode='999'",
+                String.class);
+        assertEquals("Ejerforhold2", ejerforhold);
+    }
+    
+    @Test
+    public void test3800() {
+        // simulate fgr importer
+        haibaJdbc
+        .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'TST Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
+        haibaJdbc
+        .update("INSERT INTO klass_shak (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('3800', 'test', 'Ejerforhold','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
+        // then carecom
+        lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '3800', '999', '1', '1111111111', '2013-01-10', '2013-01-14')");
+        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 0);
+        
+        executor.doProcess(true);
+        
+        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 1);
+        String ejerforhold = haibaJdbc.queryForObject(
+                "select Ejerforhold from anvendt_klass_shak where sygehuskode='3800TST' AND afdelingskode='999'",
+                String.class);
+        assertEquals("Ejerforhold", ejerforhold);
+    }
+
+    @Test
+    public void testTwo3800() {
+        // simulate fgr importer
+        haibaJdbc
+                .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'TST Testafdeling', 'test', '2009-01-01', '2009-01-01', '2010-01-01')");
+        haibaJdbc
+                .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'HAK Testafdeling', 'test', '2009-01-01', '2010-01-01', '2045-01-01')");
+        haibaJdbc
+                .update("INSERT INTO klass_shak (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('3800', 'test', 'Ejerforhold','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
+        // then carecom
+        lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '3800', '999', '1', '1111111111', '2013-01-10', '2013-01-14')");
+        lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '3800', '999', '1', '1111111111', '2009-01-10', '2009-01-14')");
+        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 0);
+
+        executor.doProcess(true);
+
+        List<String> sygehuskoder = haibaJdbc.query("select sygehuskode from anvendt_klass_shak", new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getString("sygehuskode");
+            }
+        });
+        assertTrue(sygehuskoder.contains("3800TST"));
+        assertTrue(sygehuskoder.contains("3800HAK"));
+
+        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 2);
+        String ejerforhold = haibaJdbc.queryForObject(
+                "select Ejerforhold from anvendt_klass_shak where sygehuskode='3800TST' AND afdelingskode='999'",
+                String.class);
+        assertEquals("Ejerforhold", ejerforhold);
     }
 }

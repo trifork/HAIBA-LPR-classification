@@ -30,11 +30,11 @@ import java.util.Collection;
 import java.util.Date;
 
 public interface LPRDAO {
-    public Collection<Codes> nyGetSygehusKoder();
+    public Collection<Codes> getSygehusKoder();
 
-    public Collection<Codes> nyGetDiagnoseKoder();
+    public Collection<Codes> getDiagnoseKoder();
 
-    public Collection<Codes> nyGetProcedureKoder();
+    public Collection<Codes> getProcedureKoder();
 
     public Collection<Date> getInDatesForSygehusKoder(String code, String secondaryCode);
 }

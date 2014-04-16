@@ -193,11 +193,11 @@ public class ClassificationCheckHelper {
         }
     }
 
-    public Collection<Codes> nyGetSygehusKoder() {
-        return lprDAO.nyGetSygehusKoder();
+    public Collection<Codes> getSygehusKoder() {
+        return lprDAO.getSygehusKoder();
     }
 
-    public Collection<Codes> nyGetRegisteredSygehusKoder() {
+    public Collection<Codes> getRegisteredSygehusKoder() {
         return classificationCheckDAO.nyGetRegisteredSygehusKoder();
     }
 }

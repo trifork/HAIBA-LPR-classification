@@ -67,7 +67,8 @@ public class HAIBADAOImpl extends CommonDAO implements HAIBADAO {
             sql = "SELECT Navn FROM klass_shak WHERE Nummer=? AND ValidFrom <= ? AND ValidTo >= ?";
         } else {
             // MSSQL
-            sql = "SELECT Navn FROM " + fgrtableprefix + "klass_shak WHERE Nummer=? AND ValidFrom <= ? AND ValidTo >= ?";
+            sql = "SELECT Navn FROM " + fgrtableprefix
+                    + "klass_shak WHERE Nummer=? AND ValidFrom <= ? AND ValidTo >= ?";
         }
 
         try {
@@ -79,7 +80,8 @@ public class HAIBADAOImpl extends CommonDAO implements HAIBADAO {
             }
         } catch (EmptyResultDataAccessException e) {
             // no name found
-            log.warn("No SygehusInitials found for Code:" + sygehuscode + ", department:" + afdelingsCode + " and date:" + in);
+            log.warn("No SygehusInitials found for Code:" + sygehuscode + ", department:" + afdelingsCode
+                    + " and date:" + in);
             return "";
         } catch (RuntimeException e) {
             throw new DAOException("Error fetching initials for hospital from FGR", e);
@@ -102,15 +104,16 @@ public class HAIBADAOImpl extends CommonDAO implements HAIBADAO {
                     return returnValue;
                 }
             };
+            String sql = "SELECT DISTINCT Ejerforhold,Institutionsart,Regionskode FROM " + fgrtableprefix
+                    + "klass_shak WHERE nummer = ?";
             try {
-                ShakRegionValues shakRegionValues = jdbc.queryForObject(
-                        "SELECT DISTINCT Ejerforhold,Institutionsart,Regionskode FROM " + fgrtableprefix + "klass_shak WHERE nummer = ?",
-                        rowMapper, truncatedSygehusNummer);
+                ShakRegionValues shakRegionValues = jdbc.queryForObject(sql, rowMapper, truncatedSygehusNummer);
                 // but keep the original nummer here
                 shakRegionValues.setNummer(nummer);
                 returnValue.add(shakRegionValues);
             } catch (RuntimeException e) {
-                log.error("Error fetching shakregion values from sygehus nummer " + nummer, e);
+                log.error("Error fetching shakregion values from truncatedSygehusNummer " + truncatedSygehusNummer
+                        + ", sql=" + sql, e);
             }
         }
         return returnValue;

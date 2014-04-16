@@ -64,26 +64,26 @@ public class LPRDAOComposite implements LPRDAO {
     }
 
     @Override
-    public Collection<Codes> nyGetSygehusKoder() {
+    public Collection<Codes> getSygehusKoder() {
         Set<Codes> returnValue = new HashSet<Codes>();
-        returnValue.addAll(minipasLPRDAO.nyGetSygehusKoder());
-        returnValue.addAll(ssiLPRDAO.nyGetSygehusKoder());
+        returnValue.addAll(minipasLPRDAO.getSygehusKoder());
+        returnValue.addAll(ssiLPRDAO.getSygehusKoder());
         return new ArrayList<Codes>(returnValue);
     }
 
     @Override
-    public Collection<Codes> nyGetDiagnoseKoder() {
+    public Collection<Codes> getDiagnoseKoder() {
         Set<Codes> returnValue = new HashSet<Codes>();
-        returnValue.addAll(minipasLPRDAO.nyGetDiagnoseKoder());
-        returnValue.addAll(ssiLPRDAO.nyGetDiagnoseKoder());
+        returnValue.addAll(minipasLPRDAO.getDiagnoseKoder());
+        returnValue.addAll(ssiLPRDAO.getDiagnoseKoder());
         return new ArrayList<Codes>(returnValue);
     }
 
     @Override
-    public Collection<Codes> nyGetProcedureKoder() {
+    public Collection<Codes> getProcedureKoder() {
         Set<Codes> returnValue = new HashSet<Codes>();
-        returnValue.addAll(minipasLPRDAO.nyGetProcedureKoder());
-        returnValue.addAll(ssiLPRDAO.nyGetProcedureKoder());
+        returnValue.addAll(minipasLPRDAO.getProcedureKoder());
+        returnValue.addAll(ssiLPRDAO.getProcedureKoder());
         return new ArrayList<Codes>(returnValue);
     }
 

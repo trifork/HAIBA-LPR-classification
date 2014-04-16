@@ -50,93 +50,102 @@ import dk.sdsd.nsp.slalog.impl.SLALoggerDummyImpl;
 @EnableTransactionManagement
 @PropertySource("test.properties")
 public class LPRIntegrationTestConfiguration extends LPRConfiguration {
-	@Value("${test.mysql.port}")
-	private int mysqlPort;
-	@Value("${test.mysql.lprdbname}")
-	private String testLPRDbName;
-	@Value("${test.mysql.lprminipasdbname}")
-	private String testLPRMinipasDbName;
-	@Value("${test.mysql.lprdbusername}")
-	private String testLPRDbUsername;
-	@Value("${test.mysql.lprdbpassword}")
-	private String testLPRDbPassword;
-	@Value("${test.mysql.haibadbname}")
-	private String testHAIBADbName;
-	@Value("${test.mysql.haibadbusername}")
-	private String testHAIBADbUsername;
-	@Value("${test.mysql.haibadbpassword}")
-	private String testHAIBADbPassword;
+    @Value("${test.mysql.port}")
+    private int mysqlPort;
+    @Value("${test.mysql.lprdbname}")
+    private String testLPRDbName;
+    @Value("${test.mysql.lprminipasdbname}")
+    private String testLPRMinipasDbName;
+    @Value("${test.mysql.lprdbusername}")
+    private String testLPRDbUsername;
+    @Value("${test.mysql.lprdbpassword}")
+    private String testLPRDbPassword;
+    @Value("${test.mysql.haibadbname}")
+    private String testHAIBADbName;
+    @Value("${test.mysql.haibadbusername}")
+    private String testHAIBADbUsername;
+    @Value("${test.mysql.haibadbpassword}")
+    private String testHAIBADbPassword;
 
-	@Bean
-	public static PropertySourcesPlaceholderConfigurer properties(){
-		return new PropertySourcesPlaceholderConfigurer();
-	}
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer properties() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
 
-	@Bean
-	public DataSource classificationDataSource() throws Exception{
-		String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
+    @Bean
+    public DataSource classificationDataSource() throws Exception {
+        String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
 
-		return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testHAIBADbName + "?createDatabaseIfNotExist=true", testHAIBADbUsername, testHAIBADbPassword);
-	}
+        return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testHAIBADbName
+                + "?createDatabaseIfNotExist=true", testHAIBADbUsername, testHAIBADbPassword);
+    }
 
-	@Bean
-	public DataSource lprDataSource() throws Exception{
-	    String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
-	    
-	    return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testLPRDbName + "?createDatabaseIfNotExist=true", testLPRDbUsername, testLPRDbPassword);
-	}
-	
-	@Bean
-	public DataSource lprDataSourceMinipas() throws Exception{
-	    String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
-	    
-	    return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testLPRMinipasDbName + "?createDatabaseIfNotExist=true", testLPRDbUsername, testLPRDbPassword);
-	}
+    @Bean
+    public DataSource lprDataSource() throws Exception {
+        String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
 
-	@Bean
-	public JdbcTemplate jdbcTemplate(@Qualifier("lprDataSource") DataSource ds) {
-		return new JdbcTemplate(ds);
-	}
+        return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testLPRDbName
+                + "?createDatabaseIfNotExist=true", testLPRDbUsername, testLPRDbPassword);
+    }
 
-	@Bean
-	public JdbcTemplate classificationJdbcTemplate(@Qualifier("haibaDataSource") DataSource ds) {
-	    return new JdbcTemplate(ds);
-	}
-	
-	@Bean
-	public JdbcTemplate minipasJdbcTemplate(@Qualifier("lprDataSourceMinipas") DataSource ds) {
-	    return new JdbcTemplate(ds);
-	}
+    @Bean
+    public DataSource lprDataSourceMinipas() throws Exception {
+        String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
 
-	@Bean
-	public PlatformTransactionManager lprTransactionManager(@Qualifier("lprDataSource") DataSource ds) {
-		return new DataSourceTransactionManager(ds);
-	}
+        return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testLPRMinipasDbName
+                + "?createDatabaseIfNotExist=true", testLPRDbUsername, testLPRDbPassword);
+    }
 
-	@Bean
-	public PlatformTransactionManager miniPasTransactionManager(@Qualifier("lprDataSourceMinipas") DataSource ds) {
-	    return new DataSourceTransactionManager(ds);
-	}
+    @Bean
+    public JdbcTemplate jdbcTemplate(@Qualifier("lprDataSource") DataSource ds) {
+        return new JdbcTemplate(ds);
+    }
 
-	@Bean
-	public DataSource haibaDataSource() throws Exception{
-		String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
+    @Bean
+    public JdbcTemplate classificationJdbcTemplate(@Qualifier("haibaDataSource") DataSource ds) {
+        return new JdbcTemplate(ds);
+    }
 
-		return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testHAIBADbName + "?createDatabaseIfNotExist=true", testHAIBADbUsername, testHAIBADbPassword);
-	}
+    @Bean
+    public JdbcTemplate minipasJdbcTemplate(@Qualifier("lprDataSourceMinipas") DataSource ds) {
+        return new JdbcTemplate(ds);
+    }
 
-	@Bean
-	public JdbcTemplate haibaJdbcTemplate(@Qualifier("haibaDataSource") DataSource ds) {
-		return new JdbcTemplate(ds);
-	}
+    @Bean
+    public PlatformTransactionManager lprTransactionManager(@Qualifier("lprDataSource") DataSource ds) {
+        return new DataSourceTransactionManager(ds);
+    }
 
-	@Bean
-	public PlatformTransactionManager haibaTransactionManager(@Qualifier("haibaDataSource") DataSource ds) {
-		return new DataSourceTransactionManager(ds);
-	}
+    @Bean
+    public PlatformTransactionManager miniPasTransactionManager(@Qualifier("lprDataSourceMinipas") DataSource ds) {
+        return new DataSourceTransactionManager(ds);
+    }
 
-	@Bean
-	public SLALogger slaLogger() {
-		return new SLALoggerDummyImpl();
-	}
+    @Bean
+    public DataSource haibaDataSource() throws Exception {
+        String jdbcUrlPrefix = "jdbc:mysql://127.0.0.1:" + mysqlPort + "/";
+
+        return new SimpleDriverDataSource(new Driver(), jdbcUrlPrefix + testHAIBADbName
+                + "?createDatabaseIfNotExist=true", testHAIBADbUsername, testHAIBADbPassword);
+    }
+
+    @Bean
+    public JdbcTemplate haibaJdbcTemplate(@Qualifier("haibaDataSource") DataSource ds) {
+        return new JdbcTemplate(ds);
+    }
+
+    @Bean
+    public JdbcTemplate lprJdbcTemplate(@Qualifier("lprDataSource") DataSource ds) {
+        return new JdbcTemplate(ds);
+    }
+
+    @Bean
+    public PlatformTransactionManager haibaTransactionManager(@Qualifier("haibaDataSource") DataSource ds) {
+        return new DataSourceTransactionManager(ds);
+    }
+
+    @Bean
+    public SLALogger slaLogger() {
+        return new SLALoggerDummyImpl();
+    }
 }

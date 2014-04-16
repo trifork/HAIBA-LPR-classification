@@ -57,31 +57,31 @@ public class LPRDAOImpl extends CommonDAO implements LPRDAO {
     }
 
     @Override
-    public Collection<Codes> nyGetSygehusKoder() {
+    public Collection<Codes> getSygehusKoder() {
         String sql = "SELECT DISTINCT c_sgh,c_afd FROM " + hr_tableprefix + "T_ADM";
         return getKoder(sql, "c_sgh", "c_afd");
     }
 
     @Override
-    public Collection<Codes> nyGetProcedureKoder() {
+    public Collection<Codes> getProcedureKoder() {
         String sql = "SELECT DISTINCT c_kode,c_tilkode FROM " + hr_tableprefix + "T_KODER WHERE v_type!='dia'";
         return getKoder(sql, "c_kode", "c_tilkode");
     }
 
     @Override
-    public Collection<Codes> nyGetDiagnoseKoder() {
+    public Collection<Codes> getDiagnoseKoder() {
         String sql = "SELECT DISTINCT c_kode,c_tilkode FROM " + hr_tableprefix + "T_KODER WHERE v_type='dia'";
         return getKoder(sql, "c_kode", "c_tilkode");
     }
 
-    private Collection<Codes> getKoder(String sql, String f1, String f2) {
+    private Collection<Codes> getKoder(String sql, final String f1, final String f2) {
         Collection<Codes> returnValue = new ArrayList<Codes>();
         try {
             returnValue = jdbcTemplate.query(sql, new RowMapper<Codes>() {
                 @Override
                 public Codes mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    String code = rs.getString("c_kode");
-                    String secondaryCode = rs.getString("c_tilkode");
+                    String code = rs.getString(f1);
+                    String secondaryCode = rs.getString(f2);
                     return new CodesImpl(code, secondaryCode);
                 }
             });
@@ -89,6 +89,7 @@ public class LPRDAOImpl extends CommonDAO implements LPRDAO {
         } catch (RuntimeException e) {
             throw new DAOException("Error fetching for sql " + sql, e);
         }
+        log.trace("getKoder: " + sql + ", " + f1 + ", " + f2 + ":" + returnValue);
         return returnValue;
     }
 

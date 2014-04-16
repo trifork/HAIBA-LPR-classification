@@ -34,8 +34,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import dk.nsi.haiba.lprimporter.dao.Codes;
@@ -53,7 +51,7 @@ public class ImportExecutor {
     private static Log log = new Log(Logger.getLogger(ImportExecutor.class));
 
     private boolean manualOverride;
-    
+
     LPRDAO lprdao;
 
     @Autowired
@@ -94,8 +92,8 @@ public class ImportExecutor {
                 emailSender.sendHello();
             }
 
-            Collection<Codes> allUsedSygehusKoder = classificationCheckHelper.nyGetSygehusKoder();
-            Collection<Codes> allRegisteredSygehusKoder = classificationCheckHelper.nyGetRegisteredSygehusKoder();
+            Collection<Codes> allUsedSygehusKoder = classificationCheckHelper.getSygehusKoder();
+            Collection<Codes> allRegisteredSygehusKoder = classificationCheckHelper.getRegisteredSygehusKoder();
             // test is generally done with 'startswith' as the registered codes may have an extension with sygehus
             // initials and the allused don't
             Collection<Codes> newSygehusKoder = testNewKoder(allUsedSygehusKoder, allRegisteredSygehusKoder);
@@ -104,7 +102,7 @@ public class ImportExecutor {
 
             // for sygehuskoder, find the initials
             addSygehusInitials(newSygehusKoder);
-            
+
             classificationCheckHelper.check(newSygehusKoder, newDiagnoseKoder, newProcedureKoder);
 
             statusRepo.importEndedWithSuccess(new DateTime());
@@ -138,22 +136,23 @@ public class ImportExecutor {
             // put the code back, now with initials (multiple initials are possible)
             for (Date in : inDates) {
                 String sygehusInitials = haibaDao.getSygehusInitials(code, secondaryCode, in);
-                log.debug("addSygehusInitials: added " + sygehusInitials + " to " + code + "/" + secondaryCode);
+                log.debug("addSygehusInitials: added '" + sygehusInitials + "' to " + code + "/" + secondaryCode);
                 newSygehusKoder.add(new CodesImpl(code + sygehusInitials, secondaryCode));
             }
         }
     }
 
     private Collection<Codes> testNewKoder(Collection<Codes> allUsed, Collection<Codes> allRegistered) {
-        Collection<Codes> returnValue = new ArrayList<Codes>();
+        Collection<Codes> returnValue = new ArrayList<Codes>(allUsed);
         for (Codes used : allUsed) {
             for (Codes registered : allRegistered) {
                 if (registered.getCode().startsWith(used.getCode())
                         && equals(registered.getSecondaryCode(), used.getSecondaryCode())) {
-                    returnValue.add(used);
+                    returnValue.remove(used);
                 }
             }
         }
+        log.debug("testNewKoder: returnValue=" + returnValue);
         return returnValue;
     }
 
