@@ -96,9 +96,14 @@ public class ImportExecutor {
             Collection<Codes> allRegisteredSygehusKoder = classificationCheckHelper.getRegisteredSygehusKoder();
             // test is generally done with 'startswith' as the registered codes may have an extension with sygehus
             // initials and the allused don't
+            Collection<Codes> allUsedProcedureKoder = classificationCheckHelper.getProcedureKoder();
+            Collection<Codes> allRegisteredProcedureKoder = classificationCheckHelper.getRegisteredProcedureKoder();
+            Collection<Codes> allUsedDiagnoseKoder = classificationCheckHelper.getDiagnoseKoder();
+            Collection<Codes> allRegisteredDiagnoseKoder = classificationCheckHelper.getRegisteredDiagnoseKoder();
+
             Collection<Codes> newSygehusKoder = testNewKoder(allUsedSygehusKoder, allRegisteredSygehusKoder);
-            Collection<Codes> newDiagnoseKoder = new ArrayList<Codes>();
-            Collection<Codes> newProcedureKoder = new ArrayList<Codes>();
+            Collection<Codes> newProcedureKoder = testNewKoder(allUsedProcedureKoder, allRegisteredProcedureKoder);
+            Collection<Codes> newDiagnoseKoder = testNewKoder(allUsedDiagnoseKoder, allRegisteredDiagnoseKoder);
 
             // for sygehuskoder, find the initials
             addSygehusInitials(newSygehusKoder);

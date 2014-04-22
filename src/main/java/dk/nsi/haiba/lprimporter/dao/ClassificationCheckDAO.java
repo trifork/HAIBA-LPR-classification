@@ -56,5 +56,9 @@ public interface ClassificationCheckDAO {
 
     public void storeShakRegionValues(Collection<ShakRegionValues> shakRegionValuesForSygehusNumre);
 
-    public Collection<Codes> nyGetRegisteredSygehusKoder();
+    public Collection<Codes> getRegisteredSygehusKoder();
+
+    public Collection<Codes> getRegisteredDiagnoseKoder();
+
+    public Collection<Codes> getRegisteredProcedureKoder();
 }

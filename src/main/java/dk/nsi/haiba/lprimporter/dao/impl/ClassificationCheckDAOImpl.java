@@ -131,19 +131,19 @@ public class ClassificationCheckDAOImpl extends CommonDAO implements Classificat
     }
 
     @Override
-    public Collection<Codes> nyGetRegisteredSygehusKoder() {
+    public Collection<Codes> getRegisteredSygehusKoder() {
         String sql = "SELECT DISTINCT sygehuskode,afdelingskode FROM " + tableprefix + "anvendt_klass_shak";
         return getKoder(sql, "sygehuskode", "afdelingskode");
     }
 
-    private Collection<Codes> getKoder(String sql, String f1, String f2) {
+    private Collection<Codes> getKoder(String sql, final String f1, final String f2) {
         Collection<Codes> returnValue = new ArrayList<Codes>();
         try {
             returnValue = aClassificationJdbc.query(sql, new RowMapper<Codes>() {
                 @Override
                 public Codes mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    String code = rs.getString("c_kode");
-                    String secondaryCode = rs.getString("c_tilkode");
+                    String code = rs.getString(f1);
+                    String secondaryCode = rs.getString(f2);
                     return new CodesImpl(code, secondaryCode);
                 }
             });
@@ -152,5 +152,17 @@ public class ClassificationCheckDAOImpl extends CommonDAO implements Classificat
             throw new DAOException("Error fetching for sql " + sql, e);
         }
         return returnValue;
+    }
+
+    @Override
+    public Collection<Codes> getRegisteredDiagnoseKoder() {
+        String sql = "SELECT DISTINCT Diagnoseskode,tillaegskode FROM " + tableprefix + "anvendt_klass_diagnoser";
+        return getKoder(sql, "Diagnoseskode", "tillaegskode");
+    }
+
+    @Override
+    public Collection<Codes> getRegisteredProcedureKoder() {
+        String sql = "SELECT DISTINCT procedurekode,tillaegskode FROM " + tableprefix + "anvendt_klass_procedurer";
+        return getKoder(sql, "procedurekode", "tillaegskode");
     }
 }

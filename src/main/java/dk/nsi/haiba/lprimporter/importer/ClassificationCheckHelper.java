@@ -59,28 +59,29 @@ public class ClassificationCheckHelper {
     @Autowired
     EmailSender emailSender;
 
-    public void check(Collection<Codes> sygehusKoder, Collection<Codes> diagnoseKoder,
-            Collection<Codes> procedureKoder) {
+    public void check(Collection<Codes> sygehusKoder, Collection<Codes> diagnoseKoder, Collection<Codes> procedureKoder) {
+        log.debug("sygehusKoder=" + sygehusKoder + ", diagnoseKoder=" + diagnoseKoder + ", procedureKoder="
+                + procedureKoder);
         Set<CheckStructure> newSygehusClassifications = new HashSet<ClassificationCheckDAO.CheckStructure>();
         Set<CheckStructure> newDiagnoseCheckClassifications = new HashSet<ClassificationCheckDAO.CheckStructure>();
         Set<CheckStructure> newProcedureCheckClassifications = new HashSet<ClassificationCheckDAO.CheckStructure>();
 
         for (Codes ncs : sygehusKoder) {
-            CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "sygehuskode", "afdelingskode",
-                    "anvendt_klass_shak");
+            CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "sygehuskode",
+                    "afdelingskode", "anvendt_klass_shak");
             newSygehusClassifications.add(csi);
         }
         for (Codes ncs : diagnoseKoder) {
-            CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "Diagnoseskode", "tillaegskode",
-                    "Anvendt_klass_diagnoser");
-            newSygehusClassifications.add(csi);
+            CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "Diagnoseskode",
+                    "tillaegskode", "Anvendt_klass_diagnoser");
+            newDiagnoseCheckClassifications.add(csi);
         }
-        for (Codes ncs : diagnoseKoder) {
-            CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "procedurekode", "tillaegskode",
-                    "Anvendt_klass_procedurer");
+        for (Codes ncs : procedureKoder) {
+            CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "procedurekode",
+                    "tillaegskode", "Anvendt_klass_procedurer");
             newProcedureCheckClassifications.add(csi);
         }
-        
+
         if (!newSygehusClassifications.isEmpty() || !newProcedureCheckClassifications.isEmpty()
                 || !newDiagnoseCheckClassifications.isEmpty()) {
             log.debug("send email about new sygehuse=" + newSygehusClassifications.size() + " or new procedure="
@@ -198,6 +199,22 @@ public class ClassificationCheckHelper {
     }
 
     public Collection<Codes> getRegisteredSygehusKoder() {
-        return classificationCheckDAO.nyGetRegisteredSygehusKoder();
+        return classificationCheckDAO.getRegisteredSygehusKoder();
+    }
+
+    public Collection<Codes> getDiagnoseKoder() {
+        return lprDAO.getDiagnoseKoder();
+    }
+
+    public Collection<Codes> getRegisteredDiagnoseKoder() {
+        return classificationCheckDAO.getRegisteredDiagnoseKoder();
+    }
+
+    public Collection<Codes> getProcedureKoder() {
+        return lprDAO.getProcedureKoder();
+    }
+
+    public Collection<Codes> getRegisteredProcedureKoder() {
+        return classificationCheckDAO.getRegisteredProcedureKoder();
     }
 }
