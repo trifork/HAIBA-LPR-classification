@@ -54,9 +54,6 @@ public class HAIBADAOImpl extends CommonDAO implements HAIBADAO {
     @Qualifier("haibaJdbcTemplate")
     JdbcTemplate jdbc;
 
-    @Value("${jdbc.haibatableprefix:}")
-    String tableprefix;
-
     @Value("${jdbc.fgrtableprefix:fgr.}")
     String fgrtableprefix;
 
