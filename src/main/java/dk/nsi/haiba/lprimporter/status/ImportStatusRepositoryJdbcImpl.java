@@ -170,10 +170,10 @@ public class ImportStatusRepositoryJdbcImpl extends CommonDAO implements ImportS
     public boolean isHAIBADBAlive() {
         String sql = null;
         if (MYSQL.equals(getDialect())) {
-            sql = "SELECT * from ImporterStatus LIMIT 1";
+            sql = "SELECT Id from ImporterStatus LIMIT 1";
         } else {
             // MSSQL
-            sql = "SELECT Top 1 * from " + tableprefix + "ImporterStatus";
+            sql = "SELECT Top 1 Id from " + tableprefix + "ImporterStatus";
         }
 
         try {
@@ -197,7 +197,7 @@ public class ImportStatusRepositoryJdbcImpl extends CommonDAO implements ImportS
         }
 
         try {
-            jdbcTemplate.queryForObject(sql, Long.class);
+            jdbcTemplate.queryForObject(sql, String.class);
         } catch (EmptyResultDataAccessException e) {
             // no data was found, but table exists, so everything is ok
         } catch (Exception someError) {
