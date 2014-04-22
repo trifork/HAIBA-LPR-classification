@@ -30,19 +30,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import dk.nsi.haiba.lprimporter.dao.ClassificationCheckDAO;
-import dk.nsi.haiba.lprimporter.dao.CommonDAO;
 import dk.nsi.haiba.lprimporter.dao.Codes;
+import dk.nsi.haiba.lprimporter.dao.CommonDAO;
 import dk.nsi.haiba.lprimporter.exception.DAOException;
 import dk.nsi.haiba.lprimporter.log.Log;
 import dk.nsi.haiba.lprimporter.model.haiba.ShakRegionValues;
@@ -56,56 +53,6 @@ public class ClassificationCheckDAOImpl extends CommonDAO implements Classificat
 
     public ClassificationCheckDAOImpl(JdbcTemplate classificationJdbc) {
         aClassificationJdbc = classificationJdbc;
-    }
-
-    private boolean rowExists(CheckStructure checkStructure, String tableName) {
-        String sql = null;
-        String secondaryQualifier = "=?";
-        String secondaryCode = checkStructure.getSecondaryCode();
-        if (secondaryCode == null) {
-            secondaryQualifier = " IS NULL";
-        }
-        if (MYSQL.equals(getDialect())) {
-            sql = "SELECT * FROM " + tableName + " WHERE " + checkStructure.getCodeClassificationColumnName()
-                    + "=? AND " + checkStructure.getSecondaryCodeClasificationColumnName() + secondaryQualifier
-                    + " LIMIT 1";
-        } else {
-            // MSSQL
-            sql = "SELECT TOP 1 * FROM " + tableprefix + tableName + " WHERE "
-                    + checkStructure.getCodeClassificationColumnName() + "=? AND "
-                    + checkStructure.getSecondaryCodeClasificationColumnName() + secondaryQualifier;
-        }
-
-        try {
-            Object[] objects = null;
-            if (secondaryCode != null) {
-                objects = new Object[] { checkStructure.getCode(), secondaryCode };
-            } else {
-                objects = new Object[] { checkStructure.getCode() };
-            }
-            SqlRowSet queryForRowSet = aClassificationJdbc.queryForRowSet(sql, objects);
-            if (queryForRowSet.first()) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (EmptyResultDataAccessException e) {
-            // ignore - does not exist
-        } catch (RuntimeException e) {
-            throw new DAOException("Error testing existence of " + checkStructure, e);
-        }
-        return false;
-    }
-
-    @Override
-    public Collection<CheckStructure> checkClassifications(Collection<CheckStructure> checkStructures) {
-        Set<CheckStructure> returnValue = new HashSet<CheckStructure>();
-        for (CheckStructure checkStructure : checkStructures) {
-            if (!rowExists(checkStructure, checkStructure.getClassificationTableName())) {
-                returnValue.add(checkStructure);
-            }
-        }
-        return returnValue;
     }
 
     @Override
