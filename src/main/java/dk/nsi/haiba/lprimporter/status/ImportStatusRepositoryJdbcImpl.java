@@ -197,7 +197,7 @@ public class ImportStatusRepositoryJdbcImpl extends CommonDAO implements ImportS
         }
 
         try {
-            jdbcTemplate.queryForObject(sql, String.class);
+            jdbcTemplate.queryForObject(sql, Object.class);
         } catch (EmptyResultDataAccessException e) {
             // no data was found, but table exists, so everything is ok
         } catch (Exception someError) {
