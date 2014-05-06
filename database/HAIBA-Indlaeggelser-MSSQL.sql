@@ -1,4 +1,4 @@
-CREATE TABLE anvendt_klass_shak (
+CREATE TABLE Class_dynamic_SHAK (
     ID BIGINT NOT NULL IDENTITY PRIMARY KEY,
     sygehuskode VARCHAR(10),
     afdelingskode VARCHAR(10),
@@ -13,7 +13,7 @@ CREATE TABLE anvendt_klass_shak (
 
 );
 
-CREATE TABLE anvendt_klass_procedurer (
+CREATE TABLE Class_dynamic_procedures (
     ID BIGINT NOT NULL IDENTITY PRIMARY KEY,
     procedurekode VARCHAR(10),
     tillaegskode VARCHAR(10),
@@ -23,7 +23,7 @@ CREATE TABLE anvendt_klass_procedurer (
     H_HOFTE_REO float NULL
 );
 
-CREATE TABLE anvendt_klass_diagnoser (
+CREATE TABLE Class_dynamic_diagnosis (
     ID BIGINT NOT NULL IDENTITY PRIMARY KEY,
     Diagnoseskode VARCHAR(10),
     tillaegskode VARCHAR(10),

@@ -68,17 +68,17 @@ public class ClassificationCheckHelper {
 
         for (Codes ncs : sygehusKoder) {
             CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "sygehuskode",
-                    "afdelingskode", "anvendt_klass_shak");
+                    "afdelingskode", "Class_dynamic_SHAK");
             newSygehusClassifications.add(csi);
         }
         for (Codes ncs : diagnoseKoder) {
             CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "Diagnoseskode",
-                    "tillaegskode", "Anvendt_klass_diagnoser");
+                    "tillaegskode", "Class_dynamic_diagnosis");
             newDiagnoseCheckClassifications.add(csi);
         }
         for (Codes ncs : procedureKoder) {
             CheckStructureImpl csi = new CheckStructureImpl(ncs.getCode(), ncs.getSecondaryCode(), "procedurekode",
-                    "tillaegskode", "Anvendt_klass_procedurer");
+                    "tillaegskode", "Class_dynamic_procedures");
             newProcedureCheckClassifications.add(csi);
         }
 

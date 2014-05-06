@@ -110,18 +110,18 @@ public class ImportExecutorTest {
     public void testNon3800() {
         // simulate fgr importer
         haibaJdbc
-                .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('1234999', 'PAP Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
+                .update("INSERT INTO Class_SHAK (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('1234999', 'PAP Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
         haibaJdbc
-                .update("INSERT INTO klass_shak (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('1234', 'test', 'Ejerforhold2','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
+                .update("INSERT INTO Class_SHAK (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('1234', 'test', 'Ejerforhold2','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
         // then carecom
         lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '1234', '999', '1', '1111111111', '2013-01-10', '2013-01-14')");
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 0);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 0);
 
         executor.doProcess(true);
 
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 1);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 1);
         String ejerforhold = haibaJdbc.queryForObject(
-                "select Ejerforhold from anvendt_klass_shak where sygehuskode='1234' AND afdelingskode='999'",
+                "select Ejerforhold from Class_dynamic_SHAK where sygehuskode='1234' AND afdelingskode='999'",
                 String.class);
         assertEquals("Ejerforhold2", ejerforhold);
     }
@@ -130,57 +130,57 @@ public class ImportExecutorTest {
     public void testNon3800AlreadyThere() {
         // simulate fgr importer
         haibaJdbc
-        .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('1234999', 'PAP Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
+        .update("INSERT INTO Class_SHAK (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('1234999', 'PAP Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
         haibaJdbc
-        .update("INSERT INTO klass_shak (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('1234', 'test', 'Ejerforhold2','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
+        .update("INSERT INTO Class_SHAK (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('1234', 'test', 'Ejerforhold2','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
         haibaJdbc
-        .update("INSERT INTO anvendt_klass_shak (Sygehuskode, Afdelingskode) VALUES ('1234', '999')");
+        .update("INSERT INTO Class_dynamic_SHAK (Sygehuskode, Afdelingskode) VALUES ('1234', '999')");
         lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '1234', '999', '1', '1111111111', '2013-01-10', '2013-01-14')");
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 1);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 1);
         
         executor.doProcess(true);
         
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 1);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 1);
     }
     
     @Test
     public void testProcedure() {
         lprJdbc.update("INSERT INTO T_KODER (c_kode, c_tilkode, v_type) VALUES ('x', 'y', 'und')");
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_procedurer") == 0);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_procedures") == 0);
         
         executor.doProcess(true);
         
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_procedurer") == 1);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_procedures") == 1);
     }
     
     @Test
     public void testDiagnose() {
         lprJdbc.update("INSERT INTO T_KODER (c_kode, c_tilkode, v_type) VALUES ('xy', 'y', 'dia')");
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_diagnoser") == 0);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_diagnosis") == 0);
         
         executor.doProcess(true);
         
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_diagnoser") == 1);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_diagnosis") == 1);
     }
     
     @Test
     public void test3800() {
         // simulate fgr importer
         haibaJdbc
-        .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'TST Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
+        .update("INSERT INTO Class_SHAK (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'TST Testafdeling', 'test', '2009-01-01', '2009-01-01', '2045-01-01')");
         haibaJdbc
-        .update("INSERT INTO klass_shak (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('3800', 'test', 'Ejerforhold','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
+        .update("INSERT INTO Class_SHAK (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('3800', 'test', 'Ejerforhold','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
         // then carecom
         lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '3800', '999', '1', '1111111111', '2013-01-10', '2013-01-14')");
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 0);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 0);
         
         executor.doProcess(true);
         
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 1);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 1);
 //        String ejerforhold = haibaJdbc.queryForObject(
-//                "select Ejerforhold from anvendt_klass_shak where sygehuskode='3800TST' AND afdelingskode='999'",
+//                "select Ejerforhold from Class_dynamic_SHAK where sygehuskode='3800TST' AND afdelingskode='999'",
 //                String.class);
-        haibaJdbc.query("select * from anvendt_klass_shak", new RowMapper<String>(){
+        haibaJdbc.query("select * from Class_dynamic_SHAK", new RowMapper<String>(){
             @Override
             public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                 System.out.println(rs.getObject("sygehuskode"));
@@ -195,19 +195,19 @@ public class ImportExecutorTest {
     public void testTwo3800() {
         // simulate fgr importer
         haibaJdbc
-                .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'TST Testafdeling', 'test', '2009-01-01', '2009-01-01', '2010-01-01')");
+                .update("INSERT INTO Class_SHAK (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'TST Testafdeling', 'test', '2009-01-01', '2009-01-01', '2010-01-01')");
         haibaJdbc
-                .update("INSERT INTO klass_shak (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'HAK Testafdeling', 'test', '2009-01-01', '2010-01-01', '2045-01-01')");
+                .update("INSERT INTO Class_SHAK (Nummer, Navn, Organisationstype, CreatedDate, ValidFrom, ValidTo) VALUES ('3800999', 'HAK Testafdeling', 'test', '2009-01-01', '2010-01-01', '2045-01-01')");
         haibaJdbc
-                .update("INSERT INTO klass_shak (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('3800', 'test', 'Ejerforhold','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
+                .update("INSERT INTO Class_SHAK (Nummer, Organisationstype, Ejerforhold,Institutionsart,Regionskode, CreatedDate, ValidFrom, ValidTo) VALUES ('3800', 'test', 'Ejerforhold','Institutionsart','Regionskode', '2009-01-01', '2009-01-01', '2045-01-01')");
         // then carecom
         lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '3800', '999', '1', '1111111111', '2013-01-10', '2013-01-14')");
         lprJdbc.update("INSERT INTO T_ADM (V_RECNUM, C_SGH, C_AFD, C_PATTYPE, V_CPR, D_INDDTO, D_UDDTO) VALUES (12345, '3800', '999', '1', '1111111111', '2009-01-10', '2009-01-14')");
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 0);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 0);
 
         executor.doProcess(true);
 
-        List<String> sygehuskoder = haibaJdbc.query("select sygehuskode from anvendt_klass_shak", new RowMapper<String>() {
+        List<String> sygehuskoder = haibaJdbc.query("select sygehuskode from Class_dynamic_SHAK", new RowMapper<String>() {
             @Override
             public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return rs.getString("sygehuskode");
@@ -216,9 +216,9 @@ public class ImportExecutorTest {
         assertTrue(sygehuskoder.contains("3800TST"));
         assertTrue(sygehuskoder.contains("3800HAK"));
 
-        assertTrue(haibaJdbc.queryForInt("select count(*) from anvendt_klass_shak") == 2);
+        assertTrue(haibaJdbc.queryForInt("select count(*) from Class_dynamic_SHAK") == 2);
         String ejerforhold = haibaJdbc.queryForObject(
-                "select Ejerforhold from anvendt_klass_shak where sygehuskode='3800TST' AND afdelingskode='999'",
+                "select Ejerforhold from Class_dynamic_SHAK where sygehuskode='3800TST' AND afdelingskode='999'",
                 String.class);
         assertEquals("Ejerforhold", ejerforhold);
     }

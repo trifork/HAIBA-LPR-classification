@@ -71,7 +71,7 @@ public class ClassificationCheckDAOImpl extends CommonDAO implements Classificat
         for (ShakRegionValues srv : shakRegionValuesForSygehusNumre) {
             log.debug("updating shakregion for " + srv.getNummer());
             String sql = "UPDATE " + tableprefix
-                    + "anvendt_klass_shak SET Ejerforhold=?, Institutionsart=?, Regionskode=? WHERE sygehuskode=?";
+                    + "Class_dynamic_SHAK SET Ejerforhold=?, Institutionsart=?, Regionskode=? WHERE sygehuskode=?";
             aClassificationJdbc.update(sql, srv.getEjerForhold(), srv.getInstitutionsArt(), srv.getRegionsKode(),
                     srv.getNummer());
         }
@@ -79,7 +79,7 @@ public class ClassificationCheckDAOImpl extends CommonDAO implements Classificat
 
     @Override
     public Collection<Codes> getRegisteredSygehusKoder() {
-        String sql = "SELECT DISTINCT sygehuskode,afdelingskode FROM " + tableprefix + "anvendt_klass_shak";
+        String sql = "SELECT DISTINCT sygehuskode,afdelingskode FROM " + tableprefix + "Class_dynamic_SHAK";
         return getKoder(sql, "sygehuskode", "afdelingskode");
     }
 
@@ -103,13 +103,13 @@ public class ClassificationCheckDAOImpl extends CommonDAO implements Classificat
 
     @Override
     public Collection<Codes> getRegisteredDiagnoseKoder() {
-        String sql = "SELECT DISTINCT Diagnoseskode,tillaegskode FROM " + tableprefix + "anvendt_klass_diagnoser";
+        String sql = "SELECT DISTINCT Diagnoseskode,tillaegskode FROM " + tableprefix + "Class_dynamic_diagnosis";
         return getKoder(sql, "Diagnoseskode", "tillaegskode");
     }
 
     @Override
     public Collection<Codes> getRegisteredProcedureKoder() {
-        String sql = "SELECT DISTINCT procedurekode,tillaegskode FROM " + tableprefix + "anvendt_klass_procedurer";
+        String sql = "SELECT DISTINCT procedurekode,tillaegskode FROM " + tableprefix + "Class_dynamic_procedures";
         return getKoder(sql, "procedurekode", "tillaegskode");
     }
 }

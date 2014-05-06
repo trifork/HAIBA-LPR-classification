@@ -61,11 +61,11 @@ public class HAIBADAOImpl extends CommonDAO implements HAIBADAO {
     public String getSygehusInitials(String sygehuscode, String afdelingsCode, Date in) throws DAOException {
         String sql = null;
         if (MYSQL.equals(getDialect())) {
-            sql = "SELECT Navn FROM klass_shak WHERE Nummer=? AND ValidFrom <= ? AND ValidTo >= ?";
+            sql = "SELECT Navn FROM Class_SHAK WHERE Nummer=? AND ValidFrom <= ? AND ValidTo >= ?";
         } else {
             // MSSQL
             sql = "SELECT Navn FROM " + fgrtableprefix
-                    + "klass_shak WHERE Nummer=? AND ValidFrom <= ? AND ValidTo >= ?";
+                    + "Class_SHAK WHERE Nummer=? AND ValidFrom <= ? AND ValidTo >= ?";
         }
 
         try {
@@ -102,7 +102,7 @@ public class HAIBADAOImpl extends CommonDAO implements HAIBADAO {
                 }
             };
             String sql = "SELECT DISTINCT Ejerforhold,Institutionsart,Regionskode FROM " + fgrtableprefix
-                    + "klass_shak WHERE nummer = ?";
+                    + "Class_SHAK WHERE nummer = ?";
             try {
                 ShakRegionValues shakRegionValues = jdbc.queryForObject(sql, rowMapper, truncatedSygehusNummer);
                 // but keep the original nummer here
